@@ -1,3 +1,4 @@
+<img width="655" height="655" alt="logo" src="https://github.com/user-attachments/assets/a312e0ff-ea76-4cff-b994-c1475cb43772" />
 感谢作者：https://github.com/oyxning/astrbot_plugin_zirunbi给我的灵感，但是ui有点不太方便看所以参考了一下
 感谢dsh大肥鱼参与编写，此插件100%ai编写，我作为项目经理审批（bushi）
 此项目为mit协议  mit省流：你爱干啥干啥留个我名就行，但我不担责（话糙理不糙）
