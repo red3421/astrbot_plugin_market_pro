@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Market Pro · 管理控制台</title>
+<style>
+  :root{
+    --bg:#0b0e11; --panel:#161a1e; --panel2:#1e2329; --line:#2b3139;
+    --text:#eaecef; --muted:#848e9c; --up:#0ecb81; --down:#f6465d; --gold:#f0b90b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:14px/1.5 -apple-system,"Segoe UI","Microsoft YaHei",Roboto,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:26px 18px 60px}
+  h1{font-size:19px;margin:0 0 4px;letter-spacing:.3px}
+  h1 span{color:var(--gold)}
+  .sub{color:var(--muted);font-size:12px;margin-bottom:20px}
+  .cards{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .card{flex:1 1 170px;background:var(--panel);border:1px solid var(--line);
+        border-radius:8px;padding:12px 14px}
+  .card .k{color:var(--muted);font-size:12px;margin-bottom:6px}
+  .card .v{font-size:17px;font-variant-numeric:tabular-nums}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+         overflow:hidden;margin-bottom:18px}
+  .panel-head{padding:11px 14px;border-bottom:1px solid var(--line);
+              font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{color:var(--muted);font-weight:500;text-align:right;padding:9px 14px;
+     border-bottom:1px solid var(--line);font-size:12px}
+  th:first-child,td:first-child{text-align:left}
+  td{padding:9px 14px;text-align:right;border-bottom:1px solid rgba(43,49,57,.5);
+     font-variant-numeric:tabular-nums}
+  .sym{font-weight:600}
+  .sym small{color:var(--muted);font-weight:400;margin-left:6px}
+  .arrow{color:var(--muted);margin:0 6px}
+  .up{color:var(--up)} .down{color:var(--down)} .gold{color:var(--gold)}
+  .danger-zone{padding:16px 14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .danger-zone .txt{flex:1 1 320px;color:var(--muted);font-size:12px;line-height:1.7}
+  button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--line);
+         background:var(--panel2);color:var(--text);padding:9px 16px}
+  button:hover{border-color:var(--muted)}
+  .btn-danger{background:var(--down);border-color:var(--down);color:#fff;font-weight:600;
+              padding:11px 22px}
+  .btn-danger:hover{filter:brightness(1.1)}
+  .btn-danger:disabled{opacity:.45;cursor:not-allowed;filter:none}
+  .btn-primary{background:var(--gold);border-color:var(--gold);color:#10151a;font-weight:600}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px}
+  code{background:var(--panel2);padding:1px 6px;border-radius:4px;color:var(--gold)}
+  .toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);
+         background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--gold);
+         padding:11px 18px;border-radius:6px;font-size:13px;display:none;
+         box-shadow:0 12px 32px rgba(0,0,0,.55);max-width:80vw;z-index:50}
+  .toast.ok{border-left-color:var(--up)} .toast.err{border-left-color:var(--down)}
+  /* 弹窗 */
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.66);display:none;
+        align-items:center;justify-content:center;z-index:100;padding:16px}
+  .mask.show{display:flex}
+  .modal{width:520px;max-width:100%;background:var(--panel);border:1px solid var(--line);
+         border-radius:10px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+  .modal-head{padding:16px 18px 10px;font-size:16px;font-weight:600;
+              display:flex;align-items:center;gap:8px}
+  .modal-head .warn{color:var(--down)}
+  .modal-body{padding:0 18px 6px;font-size:13px;color:var(--muted);line-height:1.75}
+  .modal-body .list{max-height:180px;overflow:auto;margin:10px 0;
+                    background:#10151a;border:1px solid var(--line);border-radius:6px;padding:8px 10px;
+                    font-variant-numeric:tabular-nums}
+  .modal-body .list div{padding:3px 0;display:flex;justify-content:space-between}
+  .modal-body input{width:100%;margin-top:10px;background:#10151a;border:1px solid var(--line);
+                    border-radius:6px;color:var(--text);padding:9px 11px;font:inherit}
+  .modal-body input:focus{outline:none;border-color:var(--gold)}
+  .modal-foot{padding:14px 18px 18px;display:flex;justify-content:flex-end;gap:10px}
+  .api-box{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+  .api-box input{flex:1 1 240px;background:var(--panel2);border:1px solid var(--line);
+                 border-radius:6px;color:var(--text);padding:7px 10px;font:inherit;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>◈ MARKET<span>PRO</span> · 管理控制台</h1>
+  <div class="sub">模拟股市维护工具 · 纯模拟环境，不涉及任何现实金钱交易</div>
+
+  <div class="api-box" style="margin-bottom:10px">
+    <button id="reload">重新读取</button>
+    <span class="sub" style="margin:0">默认走「面板同源接口」，不需要填端口；只有读取失败时才需要下面的备用直连</span>
+  </div>
+
+  <div class="api-box" id="directBox" style="display:none">
+    <span class="sub" style="margin:0">备用：直连插件端口</span>
+    <input id="apiInput" placeholder="http://127.0.0.1:8666" />
+    <button id="directBtn">尝试直连</button>
+  </div>
+
+  <div class="cards">
+    <div class="card"><div class="k">币种数量</div><div class="v" id="cCount">--</div></div>
+    <div class="card"><div class="k">市场状态</div><div class="v" id="cMarket">--</div></div>
+    <div class="card"><div class="k">接口连通</div><div class="v" id="cLink">--</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>股价一览（重置目标 = 配置页里填的价格）</span><span class="sub" id="stamp" style="margin:0"></span></div>
+    <table>
+      <thead><tr><th>币种</th><th>当前价</th><th>重置目标</th><th>偏差</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:22px">加载中…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>危险操作</span></div>
+    <div class="danger-zone">
+      <div class="txt">
+        一键把所有币种的价格<b class="gold">重置为配置页里填写的价格</b>，同时清空当前 K 线与今日涨跌基准。<br />
+        用户持仓、余额、历史成交、合约仓位不会变——但价格突变会立刻改变所有人持仓市值与合约盈亏，
+        <b class="down">高倍杠杆仓位可能瞬间触发强平</b>。<br />
+        此操作不可撤销，需要二次确认。
+      </div>
+      <button id="resetBtn" class="btn-danger" disabled>一键重置全部股价</button>
+    </div>
+  </div>
+
+  <div class="hint">
+    备用方案：群里发 <code>/mkt resetprice</code>（管理员），或在配置页勾选
+    <code>⚠ 一键重置股价（备用）</code> 保存（执行后会自动取消勾选）。
+  </div>
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="modal-head"><span class="warn">⚠</span><span>确认重置全部股价？</span></div>
+    <div class="modal-body">
+      以下币种的价格会被立刻改写，K 线从新价格重新开始：
+      <div class="list" id="modalList"></div>
+      为防止误触，请在下方输入 <code>RESET</code> 后确认：
+      <input id="confirmInput" placeholder="输入 RESET" autocomplete="off" spellcheck="false" />
+    </div>
+    <div class="modal-foot">
+      <button id="cancelBtn">取消</button>
+      <button id="okBtn" class="btn-danger" disabled>确认重置</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// -*- coding: utf-8 -*-
+// 管理控制台前端脚本（内联到 pages/console/index.html）
+//
+// 重要背景：AstrBot 的插件页跑在 sandbox iframe 里，且没有 allow-same-origin，因此：
+//   1. localStorage / sessionStorage 会直接抛异常
+//   2. fetch 是跨域无凭据的（origin 为 "null"），带不上面板 Cookie
+// 所以这里完全不碰 localStorage，也不用 fetch 读数据，改用 JSONP（<script> 不受 CORS 限制）。
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var PORT = 8666;          // 插件 Web 服务的端口（页面会自动尝试几个）
+  var BASE = "";            // 命中后的基址，如 http://1.2.3.4:8666
+  var coins = [];
+  var PROBE = [
+    // AstrBot 面板所在主机
+    (function () {
+      try {
+        return location.protocol + "//" + location.hostname + ":" + PORT;
+      } catch (e) { return "http://127.0.0.1:" + PORT; }
+    })(),
+    "http://127.0.0.1:" + PORT,
+    "http://localhost:" + PORT,
+  ];
+
+  function hostDefault() {
+    try {
+      return location.protocol + "//" + location.hostname + ":" + PORT;
+    } catch (e) {
+      return "http://127.0.0.1:" + PORT;
+    }
+  }
+
+  // ---- JSONP ----
+  var seq = 0;
+  function jsonp(base, path, params, timeoutMs) {
+    return new Promise(function (resolve, reject) {
+      seq += 1;
+      var name = "__mkt_cb_" + Date.now() + "_" + seq;
+      var script = document.createElement("script");
+      var done = false;
+      var timer = setTimeout(function () {
+        if (done) return;
+        done = true;
+        cleanup();
+        reject(new Error("请求超时"));
+      }, timeoutMs || 6000);
+
+      function cleanup() {
+        clearTimeout(timer);
+        try { delete window[name]; } catch (e) { window[name] = undefined; }
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      window[name] = function (data) {
+        if (done) return;
+        done = true;
+        cleanup();
+        resolve(data);
+      };
+
+      var qs = [];
+      params = params || {};
+      params.callback = name;
+      Object.keys(params).forEach(function (k) {
+        qs.push(encodeURIComponent(k) + "=" + encodeURIComponent(params[k]));
+      });
+      qs.push("_t=" + Date.now());
+      script.src = base + path + "?" + qs.join("&");
+      script.async = true;
+      script.onerror = function () {
+        if (done) return;
+        done = true;
+        cleanup();
+        reject(new Error("无法连接 " + base));
+      };
+      document.head.appendChild(script);
+    });
+  }
+
+  // ---- 界面 ----
+  function toast(msg, kind) {
+    var el = $("toast");
+    el.textContent = msg;
+    el.className = "toast " + (kind || "ok");
+    el.style.display = "block";
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.style.display = "none"; }, 4000);
+  }
+
+  function fmt(n) {
+    if (n === null || n === undefined || isNaN(n)) return "--";
+    var v = Number(n);
+    var d = v >= 100 ? 2 : v >= 1 ? 3 : 5;
+    return v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+
+  function setStatus(text, cls) {
+    $("cLink").textContent = text;
+    $("cLink").className = "v " + (cls || "");
+  }
+
+  function checkShape(data) {
+    if (!data || data.status === "error") {
+      throw new Error((data && data.message) || "接口返回错误");
+    }
+    if (!Array.isArray(data.coins)) throw new Error("接口返回格式不对");
+    data.coins.forEach(function (c) {
+      if (!c.symbol) throw new Error("币种数据异常");
+    });
+    return data;
+  }
+
+  function applyData(data) {
+    coins = data.coins || [];
+    setStatus("正常（" + BASE.replace(/^https?:\/\//, "") + "）", "up");
+    $("cCount").textContent = coins.length + " 个";
+    $("cMarket").textContent = data.market_open ? "开市中" : "休市中";
+    $("cMarket").className = "v " + (data.market_open ? "up" : "down");
+    $("stamp").textContent = data.server_time || "";
+    $("directBox").style.display = "none";
+    renderRows();
+    $("resetBtn").disabled = coins.length === 0;
+  }
+
+  function showFail(msg) {
+    BASE = "";
+    setStatus("失败", "down");
+    $("cCount").textContent = "--";
+    $("cMarket").textContent = "--";
+    $("rows").innerHTML =
+      '<tr><td colspan="4" style="text-align:center;color:var(--down);padding:18px">' +
+      "读取失败：" + msg +
+      "<br/><span style='color:var(--muted)'>已尝试：" +
+      PROBE.slice().map(function (b) { return b + "/api/admin/overview_public"; }).join("、") +
+      "</span><br/><span style='color:var(--muted)'>备用方案：群里发 <b>/mkt resetprice</b>" +
+      "，或在配置页勾选「⚠ 一键重置股价（备用）」保存</span></td></tr>";
+    $("resetBtn").disabled = true;
+    $("directBox").style.display = "flex";
+    if (!$("apiInput").value) $("apiInput").value = hostDefault();
+  }
+
+  function renderRows() {
+    if (!coins.length) {
+      $("rows").innerHTML =
+        '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:22px">暂无币种</td></tr>';
+      return;
+    }
+    $("rows").innerHTML = coins.map(function (c) {
+      var diff = c.target ? ((c.current - c.target) / c.target) * 100 : null;
+      var diffHtml = diff === null ? "--" :
+        '<span class="' + (diff > 0 ? "up" : diff < 0 ? "down" : "") + '">' +
+        (diff > 0 ? "+" : "") + diff.toFixed(2) + "%</span>";
+      return "<tr><td><span class='sym'>" + c.symbol +
+        "<small>" + (c.name || "") + "</small></span></td><td>" + fmt(c.current) +
+        "</td><td class='gold'>" + (c.actionable ? fmt(c.target) : "未配置") +
+        "</td><td>" + diffHtml + "</td></tr>";
+    }).join("");
+  }
+
+  // ---- 依次探测候选地址 ----
+  function load() {
+    setStatus("读取中…", "");
+    var list = PROBE.slice();
+    var i = 0;
+    function next(lastErr) {
+      if (i >= list.length) {
+        showFail(lastErr || "所有地址都连不上");
+        return;
+      }
+      var base = list[i++];
+      jsonp(base, "/api/admin/overview_public", {}, 5000)
+        .then(function (data) {
+          BASE = base;
+          PORT = Number((base.match(/:(\d+)$/) || [])[1] || PORT);
+          applyData(checkShape(data));
+        })
+        .catch(function (e) { next(e && e.message); });
+    }
+    next();
+  }
+
+  function tryManual() {
+    var raw = ($("apiInput").value || "").trim().replace(/\/+$/, "");
+    if (!raw) { toast("请先填写地址", "err"); return; }
+    if (!/^https?:\/\//.test(raw)) raw = "http://" + raw;
+    setStatus("读取中…", "");
+    jsonp(raw, "/api/admin/overview_public", {}, 5000)
+      .then(function (data) {
+        BASE = raw;
+        applyData(checkShape(data));
+        toast("已连接到 " + raw, "ok");
+      })
+      .catch(function (e) {
+        $("cLink").textContent = "失败";
+        $("cLink").className = "v down";
+        showFail(e.message || "连接失败");
+      });
+  }
+
+  // ---- 二次确认 ----
+  function openModal() {
+    if (!coins.length) return;
+    $("modalList").innerHTML = coins.map(function (c) {
+      return "<div><span>" + c.symbol + "</span><span>" + fmt(c.current) +
+        '<span class="arrow">→</span><span class="gold">' +
+        (c.actionable ? fmt(c.target) : "--") + "</span></span></div>";
+    }).join("");
+    $("confirmInput").value = "";
+    $("okBtn").disabled = true;
+    $("mask").classList.add("show");
+    setTimeout(function () { $("confirmInput").focus(); }, 50);
+  }
+
+  function closeModal() { $("mask").classList.remove("show"); }
+
+  function doReset() {
+    if (!BASE) { toast("尚未连接，无法重置", "err"); return; }
+    var btn = $("okBtn");
+    btn.disabled = true;
+    btn.textContent = "重置中…";
+    jsonp(BASE, "/api/admin/reset_prices_public", { confirm: "RESET" }, 8000)
+      .then(function (data) {
+        if (!data || data.status === "error") {
+          throw new Error((data && data.message) || "重置失败");
+        }
+        closeModal();
+        toast("已重置 " + (data.count || 0) + " 个币种的价格", "ok");
+        load();
+      })
+      .catch(function (e) { toast(e.message || "重置失败", "err"); })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = "确认重置";
+      });
+  }
+
+  function bind() {
+    $("resetBtn").addEventListener("click", openModal);
+    $("cancelBtn").addEventListener("click", closeModal);
+    $("okBtn").addEventListener("click", doReset);
+    $("mask").addEventListener("click", function (e) {
+      if (e.target === $("mask")) closeModal();
+    });
+    $("confirmInput").addEventListener("input", function () {
+      $("okBtn").disabled = $("confirmInput").value.trim().toUpperCase() !== "RESET";
+    });
+    $("confirmInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !$("okBtn").disabled) doReset();
+      if (e.key === "Escape") closeModal();
+    });
+    $("directBtn").addEventListener("click", tryManual);
+    $("reload").addEventListener("click", load);
+    load();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bind);
+  } else {
+    bind();
+  }
+})();
+</script>
+</body>
+</html>

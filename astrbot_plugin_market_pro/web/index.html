@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Market Pro · 合约交易</title>
+<link rel="stylesheet" href="/static/style.css?v=132" />
+</head>
+<body>
+
+<!-- ============ 登录 ============ -->
+<div id="login" class="login-mask">
+  <div class="login-card login-card-wide">
+    <div class="login-brand">◈ MARKET<span>PRO</span></div>
+    <div class="login-sub">永续合约 · 1 - 125x 杠杆 · <b class="warn-tag">纯模拟环境</b></div>
+
+    <div class="legal-title">风险与免责声明（请完整阅读）</div>
+    <div class="legal-box" id="legalBox">
+      <p><b>一、性质说明</b><br />
+      本页面是一套<b>完全虚拟的交易模拟系统</b>，仅用于娱乐与程序功能演示。系统内所有币种、价格、K 线、
+      订单、持仓、余额、盈亏，全部由本机程序根据预设规则自动生成，<b>与任何现实中的货币、证券、加密货币、
+      交易所、行情数据源均无任何关联</b>，也不代表任何真实资产的价值。</p>
+
+      <p><b>二、不涉及真实资金</b><br />
+      本系统<b>不接入任何支付渠道</b>，<b>不支持充值、提现、兑换、转账到站外</b>，不存在任何形式的真实
+      金钱往来或结算。页面中出现的所有数字（包括“余额”“盈利”“保证金”）均为数据库中的模拟数值，
+      <b>不具备任何财产价值，不可兑换、不可转让、不可提现</b>。你在此处的任何操作都不会产生真实的
+      资金收支，也不会产生任何债权债务关系。</p>
+
+      <p><b>三、价格由本机生成</b><br />
+      价格涨跌由本机的随机算法与配置参数决定（可被管理员随时调整、重置甚至人为干预），
+      <b>与真实市场行情无关</b>，不存在任何投资参考价值。请勿依据本系统的任何数据、曲线或“收益”进行
+      现实中的投资、理财或交易决策。</p>
+
+      <p><b>四、数据与风险</b><br />
+      所有数据仅保存在本机 SQLite 数据库文件中，可能因程序重装、配置重置、管理员操作或文件损坏而
+      随时丢失或被清空，<b>不提供任何备份或恢复承诺</b>。<b>本系统按“现状”提供，不对可用性、连续性、
+      数据完整性作任何担保</b>，使用过程中产生的任何不便或数据损失由使用者自行承担。</p>
+
+      <p><b>五、账号与隐私</b><br />
+      账号即你在群内的身份标识，请<b>不要使用真实姓名、身份证号、银行卡号、常用密码</b>等敏感信息
+      作为账号或密码。密码仅以加盐哈希形式存储于本机，但本系统未针对公网暴露做安全加固，
+      请自行控制访问范围。</p>
+
+      <p><b>六、接受条款</b><br />
+      继续登录并使用本系统，即表示你已<b>完整阅读、理解并同意</b>以上全部内容，并自愿承担使用本系统
+      可能带来的全部后果。若你不同意上述任何一条，请<b>立即关闭本页面并停止使用</b>。</p>
+
+      <p class="legal-foot">—— 以上声明适用于本模拟系统的全部页面与功能 ——</p>
+    </div>
+
+    <label class="agree-row" id="agreeRow">
+      <input type="checkbox" id="agreeChk" disabled />
+      <span>我已完整阅读并同意上述全部声明（未读完无法勾选）</span>
+    </label>
+
+    <label class="field">
+      <span>账号（群号 / QQ）</span>
+      <input id="loginUser" autocomplete="username" placeholder="例如 123456789" />
+    </label>
+    <label class="field">
+      <span>密码</span>
+      <input id="loginPass" type="password" autocomplete="current-password" placeholder="在 bot 聊天框发送 /mkt register 密码" />
+    </label>
+    <button id="loginBtn" class="btn-primary" disabled>登 录</button>
+    <div class="login-hint">还没有密码？在 bot 聊天框或群（不建议）里发 <code>/mkt register 你的密码</code>（至少 6 位）<br />
+      本系统为纯模拟交易，不涉及任何现实金钱交易。</div>
+    <div id="loginErr" class="login-err"></div>
+  </div>
+</div>
+
+<!-- ============ 主界面 ============ -->
+<div id="app" class="app hidden">
+  <header class="topbar">
+    <div class="brand">◈ MARKET<span>PRO</span></div>
+    <nav class="nav">
+      <a class="active" data-nav="contract">合约</a>
+      <a data-nav="spot">现货</a>
+    </nav>
+    <div class="top-right">
+      <span class="mkt-status"><i id="mktDot" class="dot"></i><span id="mktText">--</span></span>
+      <span id="serverTime" class="muted mono"></span>
+      <span id="balTop" class="top-bal mono">可用 --</span>
+      <span id="uidLabel" class="muted mono"></span>
+      <button id="logoutBtn" class="btn-ghost">退出</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- 行情列表 -->
+    <aside class="panel markets">
+      <div class="panel-head">
+        <span>行情</span>
+        <input id="search" class="search" placeholder="搜索币种" />
+      </div>
+      <div class="mkt-cols"><span>交易对</span><span>最新价</span><span>今日</span></div>
+      <div id="marketList" class="mkt-list"></div>
+    </aside>
+
+    <!-- 图表 -->
+    <main class="panel chart-panel">
+      <div class="chart-head">
+        <div class="sym-block">
+          <h2 id="curSym">--/USDT</h2>
+          <div id="curName" class="muted"></div>
+        </div>
+        <div class="price-block">
+          <div id="curPrice" class="big-price">--</div>
+          <div id="curChange" class="chg">--</div>
+        </div>
+        <div class="stats">
+          <div><span class="muted">最高</span><b id="statHigh">--</b></div>
+          <div><span class="muted">最低</span><b id="statLow">--</b></div>
+          <div><span class="muted">成交量</span><b id="statVol">--</b></div>
+        </div>
+      </div>
+      <div class="tf-bar" id="tfBar">
+        <button data-limit="30">30</button>
+        <button data-limit="60" class="active">60</button>
+        <button data-limit="120">120</button>
+        <button data-limit="240">240</button>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chart"></canvas>
+        <div id="tip" class="chart-tip hidden"></div>
+      </div>
+    </main>
+
+    <!-- 盘口 -->
+    <aside class="panel book-panel">
+      <div class="panel-head"><span>订单簿</span><span class="muted mono" id="bookMid">--</span></div>
+      <div id="asks" class="book asks"></div>
+      <div class="book-split"></div>
+      <div id="bids" class="book bids"></div>
+      <div class="panel-head"><span>最新成交</span></div>
+      <div id="trades" class="trades"></div>
+    </aside>
+
+    <!-- 下单 -->
+    <aside class="panel order-panel">
+      <div class="tabs" id="orderTabs">
+        <button data-tab="contract" class="active">合约</button>
+        <button data-tab="spot">现货</button>
+      </div>
+
+      <div id="contractForm" class="form-body">
+        <div class="side-switch" id="sideSwitch">
+          <button data-side="LONG" class="active long">做多</button>
+          <button data-side="SHORT" class="short">做空</button>
+        </div>
+
+        <div class="lev-head">
+          <span>杠杆倍数</span>
+          <b id="levValue" class="mono">20x</b>
+        </div>
+        <input type="range" id="levRange" min="1" max="125" step="1" value="20" />
+        <div class="lev-quick" id="levQuick">
+          <button data-lev="1">1x</button>
+          <button data-lev="5">5x</button>
+          <button data-lev="10">10x</button>
+          <button data-lev="20">20x</button>
+          <button data-lev="50">50x</button>
+          <button data-lev="100">100x</button>
+          <button data-lev="125">125x</button>
+        </div>
+
+        <label class="field">
+          <span>保证金</span>
+          <input id="marginInput" type="number" min="0" step="1" value="100" />
+        </label>
+        <div class="pct-quick" id="pctQuick">
+          <button data-pct="0.1">10%</button>
+          <button data-pct="0.25">25%</button>
+          <button data-pct="0.5">50%</button>
+          <button data-pct="1">100%</button>
+        </div>
+
+        <div class="preview" id="preview">
+          <div><span>仓位价值</span><b id="pvNotional">--</b></div>
+          <div><span>数量</span><b id="pvQty">--</b></div>
+          <div><span>预估强平价</span><b id="pvLiq" class="down">--</b></div>
+          <div><span>开仓手续费</span><b id="pvFee">--</b></div>
+        </div>
+
+        <button id="openBtn" class="btn-open long">开多</button>
+        <div class="muted tiny" id="leverHint">逐仓 · 维持保证金率 --</div>
+      </div>
+
+      <div id="spotForm" class="form-body hidden">
+        <div class="side-switch" id="spotSide">
+          <button data-side="buy" class="active long">买入</button>
+          <button data-side="sell" class="short">卖出</button>
+        </div>
+        <label class="field">
+          <span>数量</span>
+          <input id="spotAmount" type="number" min="0" step="1" value="10" />
+        </label>
+        <div class="preview">
+          <div><span>参考价格</span><b id="spPrice">--</b></div>
+          <div><span>预估金额</span><b id="spCost">--</b></div>
+        </div>
+        <button id="spotBtn" class="btn-open long">买入</button>
+        <div class="muted tiny">现货市价单，扣可用余额</div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- 底部 -->
+  <section class="panel bottom">
+    <div class="tabs" id="bottomTabs">
+      <button data-tab="positions" class="active">持仓 <em id="posCount">0</em></button>
+      <button data-tab="history">历史成交</button>
+      <button data-tab="assets">现货持仓</button>
+    </div>
+    <div id="panePositions" class="pane">
+      <table class="grid">
+        <thead>
+          <tr>
+            <th>合约</th><th>方向</th><th>杠杆</th><th>数量</th><th>开仓价</th>
+            <th>标记价</th><th>保证金</th><th>未实现盈亏</th><th>ROE</th><th>强平价</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="posBody"></tbody>
+      </table>
+      <div id="posEmpty" class="empty">暂无持仓</div>
+    </div>
+    <div id="paneHistory" class="pane hidden">
+      <table class="grid">
+        <thead>
+          <tr><th>时间</th><th>类型</th><th>合约</th><th>方向</th><th>杠杆</th><th>数量</th><th>成交价</th><th>平仓价</th><th>盈亏</th><th>状态</th></tr>
+        </thead>
+        <tbody id="histBody"></tbody>
+      </table>
+      <div id="histEmpty" class="empty">暂无记录</div>
+    </div>
+    <div id="paneAssets" class="pane hidden">
+      <table class="grid">
+        <thead><tr><th>币种</th><th>持仓</th><th>现价</th><th>市值</th><th>成本</th><th>盈亏</th></tr></thead>
+        <tbody id="assetBody"></tbody>
+      </table>
+      <div id="assetEmpty" class="empty">暂无现货持仓</div>
+    </div>
+    <div class="account-bar">
+      <div><span class="muted">可用余额</span><b id="accBalance">--</b></div>
+      <div><span class="muted">占用保证金</span><b id="accMargin">--</b></div>
+      <div><span class="muted">未实现盈亏</span><b id="accPnl">--</b></div>
+      <div><span class="muted">已实现盈亏</span><b id="accRealized">--</b></div>
+      <div><span class="muted">账户权益</span><b id="accEquity">--</b></div>
+      <div class="grow"></div>
+      <button id="closeAllBtn" class="btn-ghost danger">一键全平</button>
+    </div>
+  </section>
+
+  <div id="toast" class="toast hidden"></div>
+</div>
+
+<script src="/static/app.js?v=132"></script>
+</body>
+</html>

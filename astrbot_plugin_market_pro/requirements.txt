@@ -1,0 +1,7 @@
+sqlalchemy
+mplfinance
+pandas
+matplotlib
+fastapi
+uvicorn
+passlib

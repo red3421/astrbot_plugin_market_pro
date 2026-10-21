@@ -1,0 +1,321 @@
+{
+  "market_mode": {
+    "description": "今日走势模式",
+    "type": "string",
+    "options": ["上涨", "下跌", "横盘震荡", "连续上涨", "连续下跌", "自由随机", "目标涨跌"],
+    "default": "横盘震荡",
+    "hint": "价格引擎的运行方式。保存后 1 秒内热生效，不用重启插件。"
+  },
+  "rise_strength": {
+    "description": "上涨：每 tick 涨幅",
+    "type": "float",
+    "default": 0.01,
+    "hint": "0.01 表示每个 tick 涨约 1%。走势模式选「上涨」时生效。"
+  },
+  "fall_strength": {
+    "description": "下跌：每 tick 跌幅",
+    "type": "float",
+    "default": 0.01,
+    "hint": "0.01 表示每个 tick 跌约 1%。走势模式选「下跌」时生效。"
+  },
+  "sideways_amplitude": {
+    "description": "横盘震荡：振幅",
+    "type": "float",
+    "default": 0.03,
+    "hint": "围绕基准价上下摆动的百分比。0.03 = ±3%；0.1 = ±10%（更刺激）。"
+  },
+  "sideways_period": {
+    "description": "横盘震荡：周期（tick 数）",
+    "type": "int",
+    "default": 20,
+    "hint": "一个完整波峰+波谷需要的 tick 数，越小摆动越快。"
+  },
+  "rally_ticks": {
+    "description": "连续上涨：持续 tick 数",
+    "type": "int",
+    "default": 15,
+    "hint": "跑满这么多个 tick 就停，然后切到「结束后切换到」那一项。填 0 = 一直涨下去不停。总涨幅 ≈ (1+rally_step)^rally_ticks − 1，默认 15×2% ≈ +34.6%，这就是它涨到 30% 左右转横盘的原因。"
+  },
+  "rally_step": {
+    "description": "连续上涨：每 tick 涨幅",
+    "type": "float",
+    "default": 0.02,
+    "hint": "每个 tick 上涨的百分比，0.02 = 2%。"
+  },
+  "dump_ticks": {
+    "description": "连续下跌：持续 tick 数",
+    "type": "int",
+    "default": 15,
+    "hint": "跑满这么多个 tick 就停。填 0 = 一直跌下去不停。总跌幅 ≈ 1−(1−dump_step)^dump_ticks。"
+  },
+  "dump_step": {
+    "description": "连续下跌：每 tick 跌幅",
+    "type": "float",
+    "default": 0.02,
+    "hint": "每个 tick 下跌的百分比。"
+  },
+  "after_trend_mode": {
+    "description": "连续上涨/下跌结束后切换到",
+    "type": "string",
+    "options": ["上涨", "下跌", "横盘震荡", "自由随机", "目标涨跌"],
+    "default": "横盘震荡",
+    "hint": "连涨/连跌跑完 tick 数后自动切换到的走势。想让「涨完继续涨」就选「上涨」；想无限连涨就把 rally_ticks 填 0。"
+  },
+  "daily_target_pct": {
+    "description": "目标涨跌：今日目标涨跌幅(%)",
+    "type": "float",
+    "default": 5.0,
+    "hint": "走势模式选「目标涨跌」时，引擎会自动把收盘价朝这个百分比推进（5 = +5%，-8 = -8%）。"
+  },
+  "target_window_minutes": {
+    "description": "目标涨跌：多少分钟内达成",
+    "type": "float",
+    "default": 10.0,
+    "hint": "目标涨跌幅在上面这段时间内平滑达成，之后围绕目标小幅波动。"
+  },
+  "random_volatility": {
+    "description": "自由随机：波动率",
+    "type": "float",
+    "default": 0.02,
+    "hint": "走势模式选「自由随机」时的标准差。"
+  },
+  "noise": {
+    "description": "额外噪声",
+    "type": "float",
+    "default": 0.002,
+    "hint": "给平滑走势加的抖动，让曲线更像真实行情。0 = 完全平滑。"
+  },
+  "tick_interval": {
+    "description": "价格更新间隔（秒）",
+    "type": "int",
+    "default": 5,
+    "hint": "每隔多少秒推进一次价格，也就是一根 K 线的时长。"
+  },
+  "max_tick_change": {
+    "description": "单 tick 最大涨跌幅",
+    "type": "float",
+    "default": 0.2,
+    "hint": "安全阀，防止一次跳变超过 20%。"
+  },
+  "min_price": {
+    "description": "最低价",
+    "type": "float",
+    "default": 0.01,
+    "hint": "价格下限，砸不到 0。"
+  },
+  "trade_impact": {
+    "description": "交易冲击",
+    "type": "float",
+    "default": 0.002,
+    "hint": "每笔成交对价格的推动幅度，大单影响更大。0 = 买卖不影响价格。"
+  },
+  "initial_balance": {
+    "description": "新用户初始资金",
+    "type": "float",
+    "default": 10000.0
+  },
+  "fee_rate": {
+    "description": "手续费率",
+    "type": "float",
+    "default": 0.001,
+    "hint": "0.001 = 千分之一。"
+  },
+  "enforce_trading_hours": {
+    "description": "启用交易时段限制",
+    "type": "bool",
+    "default": false,
+    "hint": "默认关闭 = 全天随时可交易。开启后只在下面两个时段内成交。"
+  },
+  "session_morning": {
+    "description": "早盘时段",
+    "type": "string",
+    "default": "09:30-11:30"
+  },
+  "session_afternoon": {
+    "description": "午盘时段",
+    "type": "string",
+    "default": "13:00-15:00"
+  },
+  "admin_ids": {
+    "description": "管理员 ID 列表",
+    "type": "list",
+    "items": {
+      "type": "string"
+    },
+    "default": [],
+    "hint": "只有这里的 QQ 号能使用加钱/转账/转股/加币/改价/切走势等管理命令。"
+  },
+  "coins": {
+    "description": "币种列表（一键添加）",
+    "type": "template_list",
+    "templates": {
+      "coin": {
+        "name": "币种",
+        "items": {
+          "symbol": {
+            "description": "币种代码（会被自动转成大写）",
+            "type": "string",
+            "default": "NEW"
+          },
+          "name": {
+            "description": "币种名称",
+            "type": "string",
+            "default": "新币"
+          },
+          "price": {
+            "description": "初始价格",
+            "type": "float",
+            "default": 100.0
+          },
+          "desc": {
+            "description": "info 命令显示的资料描述",
+            "type": "text",
+            "default": "这是一个新币种。"
+          },
+          "mode": {
+            "description": "该币种单独走势（留空=跟随全局）",
+            "type": "string",
+            "options": ["", "上涨", "下跌", "横盘震荡", "连续上涨", "连续下跌", "自由随机", "目标涨跌"],
+            "default": "",
+            "hint": "想让每个币种走势不一样，就在这里单独选；留空则跟随上面的「今日走势模式」。"
+          },
+          "enabled": {
+            "description": "是否启用",
+            "type": "bool",
+            "default": true
+          }
+        }
+      }
+    },
+    "default": [
+      {
+        "__template_key": "coin",
+        "symbol": "ZRB",
+        "name": "孜然币",
+        "price": 100.0,
+        "desc": "本插件的基础货币，象征着烤肉的灵魂。",
+        "enabled": true
+      },
+      {
+        "__template_key": "coin",
+        "symbol": "STAR",
+        "name": "星星币",
+        "price": 50.0,
+        "desc": "来自遥远星系的神秘货币，持有者相信它能带大家飞向月球。",
+        "enabled": true
+      }
+    ],
+    "hint": "点「添加条目」选「币种」即可一键新增：填代码、名称、初始价格和 info 描述。只有首次创建该币种时才会用到这里的价格。"
+  },
+  "history_keep": {
+    "description": "每个币种保留的历史 K 线数量",
+    "type": "int",
+    "default": 2000
+  },
+  "config_price_priority": {
+    "description": "启动时以配置页价格为准",
+    "type": "bool",
+    "default": true,
+    "hint": "开：重启后币种价格 = 配置页里填的价格（新币和改过价的币都会按配置价格重置，K 线从该价重新开始）。关：接续上次收盘价。"
+  },
+  "max_kline_points": {
+    "description": "K 线图显示的根数",
+    "type": "int",
+    "default": 60
+  },
+  "enable_plot": {
+    "description": "启用 K 线图",
+    "type": "bool",
+    "default": true,
+    "hint": "关闭后 /mkt kline 输出纯文字，省 CPU。"
+  },
+  "font_path": {
+    "description": "中文字体文件路径（可选）",
+    "type": "string",
+    "default": "",
+    "hint": "图中中文显示为方块时，填一个 .ttf/.ttc 绝对路径，例如 C:\\Windows\\Fonts\\msyh.ttc"
+  },
+  "web_enabled": {
+    "description": "启用 Web 交易端",
+    "type": "bool",
+    "default": true,
+    "hint": "关闭后不启动网页端，QQ 命令仍可正常使用。"
+  },
+  "web_host": {
+    "description": "Web 监听地址",
+    "type": "string",
+    "default": "0.0.0.0",
+    "hint": "0.0.0.0 表示允许局域网访问；只想本机访问就填 127.0.0.1。"
+  },
+  "web_port": {
+    "description": "Web 端口",
+    "type": "int",
+    "default": 8666,
+    "hint": "默认 8666，避开旧插件的 8000。被占用时请看日志换一个。"
+  },
+  "web_public_url": {
+    "description": "Web 对外访问地址",
+    "type": "string",
+    "default": "",
+    "hint": "例如 http://1.2.3.4:8666 或 https://mkt.example.com，会显示在 /mkt web 里。"
+  },
+  "web_show_mode": {
+    "description": "Web 端显示走势模式",
+    "type": "bool",
+    "default": false,
+    "hint": "默认关闭：网页上不会出现「走势 上涨」这类字样，接口也不返回模式字段，避免暴露价格是人为设的。仅调试时打开。"
+  },
+  "max_leverage": {
+    "description": "最高杠杆倍数",
+    "type": "int",
+    "default": 125,
+    "hint": "上限 125，填超过 125 会按 125 处理。"
+  },
+  "default_leverage": {
+    "description": "命令默认杠杆",
+    "type": "int",
+    "default": 20,
+    "hint": "/mkt long ZRB 100 不带杠杆参数时用这个值。"
+  },
+  "max_positions_per_user": {
+    "description": "每人最大持仓数",
+    "type": "int",
+    "default": 5
+  },
+  "contract_fee_rate": {
+    "description": "合约手续费率",
+    "type": "float",
+    "default": 0.0005,
+    "hint": "0.0005 = 万分之五，开仓和平仓各收一次（按名义价值）。"
+  },
+  "maintenance_margin_rate": {
+    "description": "维持保证金率",
+    "type": "float",
+    "default": 0.005,
+    "hint": "0.005 = 0.5%。仓位权益跌破名义价值×该比例时触发强平。"
+  },
+  "auto_close_on_liq": {
+    "description": "价格触及强平价时自动强平",
+    "type": "bool",
+    "default": true
+  },
+  "chart_color_style": {
+    "description": "Web K线颜色习惯",
+    "type": "string",
+    "options": ["国际（绿涨红跌）", "中国（红涨绿跌）"],
+    "default": "国际（绿涨红跌）",
+    "hint": "币安/OKX 用绿涨红跌；国内 A 股习惯红涨绿跌。只影响网页端 K 线。"
+  },
+  "reset_prices_arm": {
+    "description": "⚠ 一键重置股价（备用手段）",
+    "type": "bool",
+    "default": false,
+    "hint": "【仅在管理页打不开时才用】勾选本项并保存 = 立刻重置全部股价，执行后本项会自动改回未勾选。平时请用「插件页面 → 管理控制台」的按钮，或群里发 /mkt resetprice。"
+  },
+  "admin_api_key": {
+    "description": "管理接口密钥（可选）",
+    "type": "string",
+    "default": "",
+    "hint": "填了之后，管理页调用重置接口必须带相同的 X-Admin-Key。留空则不校验（管理页本身已受 AstrBot 面板登录保护）。"
+  }
+}
