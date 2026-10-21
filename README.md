@@ -1,8 +1,9 @@
-<img width="655" height="655" alt="logo" src="https://github.com/user-attachments/assets/a312e0ff-ea76-4cff-b994-c1475cb43772" />
+
 感谢作者：https://github.com/oyxning/astrbot_plugin_zirunbi给我的灵感，但是ui有点不太方便看所以参考了一下
 感谢dsh大肥鱼参与编写，此插件100%ai编写，我作为项目经理审批（bushi）
 此项目为mit协议  mit省流：你爱干啥干啥留个我名就行，但我不担责（话糙理不糙）
 
+<img width="655" height="655" alt="logo" src="https://github.com/user-attachments/assets/a312e0ff-ea76-4cff-b994-c1475cb43772" />
 # astrbot_plugin_market_pro
 astrbot的模拟炒股插件来cos久留美吧！多币种模拟交易插件 v1.6.2：交易所风格 Web 交易端（含免责声明、杠杆 1-125x、逐仓保证金与强平），每个币种可单独设置走势，历史成交含现货与合约，支持一键添加币种、管理员加钱/转账/转股，以及带二次确认的一键重置股价（插件页 + 配置页）。纯模拟，不涉及任何现实金钱交易。
 
