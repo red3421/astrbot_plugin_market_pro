@@ -29,8 +29,11 @@ astrbot的模拟炒股插件来cos久留美吧！多币种模拟交易插件 ：
 
 - 群里先发 `/mkt register 你的密码`（至少 6 位）开通账号（账号 = 你的 QQ / 群号）
 - 浏览器打开 `http://服务器IP:8666`，用账号 + 密码登录
-- `/mkt web` 随时查询地址；`web_public_url` 可配置成域名或公网地址
-
+- `/mkt web` 随时查询地址；`web_public_url` 可配置成域名或公网地址 
+- 需要公网ip或nat打洞（在此致敬Sakurafrp 我的第一个mc服务器穿透）
+教程：1：购买域名后使用dns工具自动对齐（https://github.com/real-zony/AliDDNSNet）
+2：配置域名后请在路由器端口穿透填写端口8666（sakura同理）
+3：填入配置页后注册自动发网址
 界面布局（对齐币安 / OKX 的合约页）：
 
 | 区域 | 内容 |
