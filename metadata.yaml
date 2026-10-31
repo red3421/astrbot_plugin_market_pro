@@ -1,7 +1,7 @@
 name: astrbot_plugin_market_pro
 display_name: 炒炒币？哎我炒！
 desc: 来cos久留美吧！多币种模拟交易插件：桌面 + 手机双端 Web 交易界面（按 UA 自动分发），含免责声明、1-125x 逐仓杠杆与强平、每个币种可单独设置走势、历史成交含现货与合约、一键添加币种、管理员加钱/转账/转股、带二次确认的一键重置股价。纯模拟，不涉及任何现实金钱交易。
-version: 1.9.0
+version: 2.0.0
 astrbot_version: ">=4.29.1"
 author: red3421
 repo: "https://github.com/red3421/astrbot_plugin_market_pro/releases"
